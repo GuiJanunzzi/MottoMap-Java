@@ -8,11 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.mottomap.dto.LoginRequest;
+import br.com.fiap.mottomap.dto.PushTokenRequest;
 import br.com.fiap.mottomap.dto.Token;
 import br.com.fiap.mottomap.dto.UsuarioRequestDto;
 import br.com.fiap.mottomap.dto.UsuarioResponse;
@@ -77,5 +79,20 @@ public class UsuarioController {
         String token = tokenService.generateToken(usuario);
 
         return ResponseEntity.ok(new Token(token, "JWT", "Bearer"));
+    }
+
+    @PostMapping("/register-token")
+    @Operation(summary = "Registra o token de push do usuário logado")
+    public ResponseEntity<Void> registerPushToken(@RequestBody @Valid PushTokenRequest pushTokenRequest) {
+        // Pega o email do usuário logado (pelo token JWT)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        Usuario usuario = repository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        
+        usuario.setPushToken(pushTokenRequest.token());
+        repository.save(usuario);
+        
+        return ResponseEntity.ok().build();
     }
 }

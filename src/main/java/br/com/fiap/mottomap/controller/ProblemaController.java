@@ -31,6 +31,7 @@ import br.com.fiap.mottomap.model.Usuario;
 import br.com.fiap.mottomap.repository.MotoRepository;
 import br.com.fiap.mottomap.repository.ProblemaRepository;
 import br.com.fiap.mottomap.repository.UsuarioRepository;
+import br.com.fiap.mottomap.service.NotificationService;
 import br.com.fiap.mottomap.specification.ProblemaSpecification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -53,6 +54,9 @@ public class ProblemaController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     //----- Documentação Swagger -----
     @Operation(
@@ -101,8 +105,13 @@ public class ProblemaController {
             .usuario(usuario)
             .build();
 
-        repository.save(problema);
-        return ResponseEntity.status(201).body(problema);
+        Problema problemaSalvo = repository.save(problema);
+
+        String titulo = "Novo Problema Reportado!";
+        String corpo = "A moto " + problemaSalvo.getMoto().getPlaca() + " reportou um problema: " + problemaSalvo.getDescricao();
+        notificationService.sendNotificationToAll(titulo, corpo);
+
+        return ResponseEntity.status(201).body(problemaSalvo);
     }
 
     //----- Documentação Swagger -----

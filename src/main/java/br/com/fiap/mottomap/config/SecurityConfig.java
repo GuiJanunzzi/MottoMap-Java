@@ -24,16 +24,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests()
-                .requestMatchers(HttpMethod.POST, "/usuario/registrar").permitAll()
-                .requestMatchers(HttpMethod.POST, "/usuario/login").permitAll()
-                // Permissões para Swagger UI
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**") // libera o H2 do CSRF
+                        .disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable())) // permite exibir o console em iframe
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/usuario/registrar").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuario/login").permitAll()
+                        // Swagger
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // H2 Console
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

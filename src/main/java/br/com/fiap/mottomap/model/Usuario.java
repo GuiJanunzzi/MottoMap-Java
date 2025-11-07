@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -50,6 +51,9 @@ public class Usuario implements UserDetails {
     @NotNull(message = "O cargo é obrigatório")
     @Enumerated(EnumType.STRING)
     private CargoUsuario cargoUsuario;
+
+    @Column(name = "push_token", length = 255) 
+    private String pushToken;
 
     @ManyToOne
     private Filial filial;
