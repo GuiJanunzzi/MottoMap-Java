@@ -8,8 +8,11 @@ WORKDIR /app
 # Copia todo o código-fonte do seu projeto para dentro da imagem
 COPY . .
 
+# --- A CORREÇÃO ESTÁ AQUI ---
+# Damos permissão de execução ao script do Maven Wrapper
+RUN chmod +x ./mvnw
+
 # Executa o comando do Maven para compilar o projeto e gerar o .jar
-# Isso vai criar a pasta /app/target/
 RUN ./mvnw package -DskipTests
 
 
