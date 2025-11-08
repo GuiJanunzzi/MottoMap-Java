@@ -1,15 +1,29 @@
-# 1. Use uma imagem base do Java 17
-FROM eclipse-temurin:17-jdk-jammy
+# --- ESTÁGIO 1: A "CONSTRUÇÃO" (Build) ---
+# Usamos uma imagem que já tem o Maven e o Java 17
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
-# 2. Defina o diretório de trabalho dentro do container
+# Define o diretório de trabalho
 WORKDIR /app
 
-# 3. Copie o arquivo .jar compilado para dentro do container
-# O "mvnw package" gera o .jar dentro da pasta 'target'
-COPY target/*.jar app.jar
+# Copia todo o código-fonte do seu projeto para dentro da imagem
+COPY . .
 
-# 4. Exponha a porta que o Spring Boot usa
+# Executa o comando do Maven para compilar o projeto e gerar o .jar
+# Isso vai criar a pasta /app/target/
+RUN ./mvnw package -DskipTests
+
+
+# --- ESTÁGIO 2: A IMAGEM FINAL (Run) ---
+# Começamos de uma imagem limpa, apenas com o Java 17 para rodar (JRE)
+FROM eclipse-temurin:17-jre-jammy
+
+WORKDIR /app
+
+# Copia APENAS o arquivo .jar que foi gerado no estágio "builder"
+COPY --from=builder /app/target/*.jar app.jar
+
+# Expõe a porta que o Spring Boot usa
 EXPOSE 8080
 
-# 5. O comando para rodar a aplicação
+# O comando para rodar a aplicação
 ENTRYPOINT ["java", "-jar", "app.jar"]
