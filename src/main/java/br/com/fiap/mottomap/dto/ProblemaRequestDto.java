@@ -45,8 +45,6 @@ public class ProblemaRequestDto {
     private String descricao;
 
     @NotNull(message = "A data é obrigatória")
-    @PastOrPresent(message = "A data não pode ser no futuro")
-    @JsonFormat(pattern = "dd/MM/yyyy")
     @Schema(description = "Data do registro do problema", example = "17/05/2025 10:45:33", required = true)
     private LocalDate dataRegistro;
 

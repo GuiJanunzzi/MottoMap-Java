@@ -37,6 +37,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import br.com.fiap.mottomap.model.Problema; 
+import br.com.fiap.mottomap.repository.ProblemaRepository; 
+import java.util.List; 
 
 @RestController
 @RequestMapping("/moto")
@@ -51,6 +54,9 @@ public class MotoController {
 
     @Autowired
     private FilialRepository filialRepository;
+
+    @Autowired
+    private ProblemaRepository problemaRepository;
 
     //----- Documentação Swagger -----
     @Operation(summary = "Listar motos",
@@ -122,6 +128,14 @@ public class MotoController {
     public Moto get(@PathVariable Long id){
         log.info("Buscando moto por ID: " + id);
         return getMoto(id);
+    }
+
+    @Operation(summary = "Listar problemas de uma moto específica")
+    @GetMapping("/{id}/problemas")
+    public List<Problema> getProblemasDaMoto(@PathVariable Long id) {
+        log.info("Buscando problemas para a moto ID: " + id);
+        getMoto(id); 
+        return problemaRepository.findByMotoId(id);
     }
 
     //----- Documentação Swagger -----

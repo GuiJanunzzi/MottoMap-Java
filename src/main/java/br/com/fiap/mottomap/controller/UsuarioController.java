@@ -78,7 +78,7 @@ public class UsuarioController {
 
         String token = tokenService.generateToken(usuario);
 
-        return ResponseEntity.ok(new Token(token, "JWT", "Bearer"));
+        return ResponseEntity.ok(new Token(token, "JWT", "Bearer", usuario.getId(), usuario.getNome()));
     }
 
     @PostMapping("/register-token")
